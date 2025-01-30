@@ -1,0 +1,81 @@
+#include <Arduino.h>
+#include <IRremoteESP8266.h>
+#include <IRsend.h>
+#include <FastLED.h> // FastLED library for WS2812
+
+const uint16_t IrLed = 4; // Set this to your chosen GPIO pin
+const uint8_t trigger = 12;
+const uint8_t kRGBPin = 5; // GPIO pin for WS2812 RGB LED
+const uint8_t kNumLEDs = 1; // Number of LEDs in the WS2812 strip
+const uint16_t kBuzzerPin = 13; // GPIO pin for the buzzer
+
+IRsend irsend(IrLed);
+
+unsigned int i_hbl = 0;
+unsigned int i_IRl = 0;
+
+bool irLedState = false;   // Track IR LED state
+
+CRGB leds[kNumLEDs]; // Array for WS2812 LED
+
+int brightness = 10; // Brightness of the RGB LED (0-255)
+int ammoCount = 10; // Initial ammo count
+unsigned long lastShotTime = 0; // Time of the last shot
+const unsigned long cooldownTime = 5000; // Cooldown time in milliseconds
+
+void setup() {
+  
+  pinMode(IrLed, OUTPUT);
+  pinMode(trigger, INPUT);
+  
+  irsend.begin();
+
+  // Initialize FastLED
+  FastLED.addLeds<WS2812, kRGBPin, GRB>(leds, kNumLEDs);
+  FastLED.setBrightness(brightness);
+}
+
+void loop() {
+    bool shootflag = false;
+
+    
+    if (digitalRead(trigger) == true && ammoCount > 0) {
+        shootflag = true;
+        irsend.sendNEC(0x4500, 16); // Test code, last two numbers for user ID
+        ammoCount--;
+        lastShotTime = millis();
+        
+        // Blink WS2812 RGB LED red once per shot
+        leds[0] = CRGB::Red;
+        FastLED.show();
+
+        // Activate buzzer with PWM tone
+        analogWrite(kBuzzerPin, 75); // Turn on buzzer
+        delay(50); // Delay to sync with LED
+        analogWrite(kBuzzerPin, 0); // Turn off buzzer
+        leds[0] = CRGB::Black; // Turn off RGB LED
+        FastLED.show();
+    }
+
+
+  while (shootflag) {
+    if (digitalRead(trigger) == false) {
+      shootflag = false;
+    }
+  }
+
+  // Check if ammo is depleted and handle cooldown
+  if (ammoCount == 0 && (millis() - lastShotTime) >= cooldownTime) {
+    ammoCount = 10; // Reset ammo count after cooldown
+
+    // Blink WS2812 RGB LED green to indicate ammo refill
+    for (int i = 0; i < 3; i++) {
+      leds[0] = CRGB::Green;
+      FastLED.show();
+      delay(100);
+      leds[0] = CRGB::Black;
+      FastLED.show();
+      delay(100);
+    }
+  }
+}

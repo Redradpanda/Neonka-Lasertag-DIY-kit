@@ -1,0 +1,74 @@
+#include <Arduino.h>
+#include <IRremoteESP8266.h>
+#include <IRrecv.h>
+#include <IRutils.h> // For decoding and printing
+#include <FastLED.h> // FastLED library for WS2812
+
+// Define pins
+const uint16_t kRecvPin = 4;    // GPIO pin for IR receiver
+const uint16_t kLEDPin = 12;    // GPIO pin for the LED
+const uint16_t kBuzzerPin = 13; // GPIO pin for the buzzer
+const uint16_t kRGBPin = 5;     // GPIO pin for WS2812 RGB LED
+
+// Constants
+const uint8_t kNumLEDs = 1;     // Number of LEDs in the WS2812 strip
+
+// Initialize IR receiver
+IRrecv irrecv(kRecvPin);
+decode_results results;
+
+// Initialize FastLED
+CRGB leds[kNumLEDs];
+
+// Variables
+int hitCount = 0;
+
+void setup() {
+    irrecv.enableIRIn(); // Start the IR receiver
+    pinMode(kLEDPin, OUTPUT); // Set LED pin as output
+    pinMode(kBuzzerPin, OUTPUT); // Set buzzer pin as output
+
+    // Initialize FastLED
+    FastLED.addLeds<WS2812, kRGBPin, GRB>(leds, kNumLEDs);
+}
+
+void loop() {
+    if (irrecv.decode(&results)) {
+        // Increment hit counter
+        hitCount++;
+
+        // Blink the LED when an IR signal is received
+        digitalWrite(kLEDPin, HIGH); // Turn on the LED
+        // Blink WS2812 RGB LED red
+        leds[0] = CRGB::Red;
+        FastLED.show();
+
+        // Activate buzzer with PWM tone
+        for (int i = 0; i < 500; i += 10) {
+            analogWrite(kBuzzerPin, 128); // Set PWM duty cycle (50%) / hit
+            //analogWrite(kBuzzerPin, 255); // Set PWM duty cycle (50%) / gunshot
+            delay(5);
+            analogWrite(kBuzzerPin, 0); // Turn off the buzzer briefly
+            delay(5);
+        }
+
+        digitalWrite(kLEDPin, LOW); // Turn off the LED
+        leds[0] = CRGB::Black; //turn off WS2812 RGB LED
+        FastLED.show();
+
+        // Check hit count
+        if (hitCount >= 3) {
+            // Glow white to indicate "killed"
+            leds[0] = CRGB::White;
+            FastLED.show();
+            delay(3000); // Hold white for 3 seconds
+
+            // Reset hit count and turn off the LED
+            hitCount = 0;
+            leds[0] = CRGB::Black;
+            FastLED.show();
+        }
+
+        irrecv.resume(); // Prepare to receive the next signal
+    }
+}
