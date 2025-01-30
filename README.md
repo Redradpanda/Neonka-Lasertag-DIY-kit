@@ -1,9 +1,10 @@
 # Neonka-Lasertag-DIY-kit
-This is a Opensource Lasertag project...
+Das ist ein Open Source Lasertag Projekt zum selber nachbauen.
 
-<img src="https://github.com/user-attachments/assets/f05a7d41-6d36-40e3-8464-a3a8355b1127" width="300">
+<img width="999" alt="lasertag front image" src="https://github.com/user-attachments/assets/57c6708c-8c0c-4f9c-b7b4-2050ce83f247" />
+
+Alle notwendige Dateien und eine Anleitung sind in diesem Projekt gespeichert.
 
 
-
-This hardware design is licensed under the CERN Open Hardware Licence Strongly Reciprocal, version 2.0.
-You can find the full license text in the LICENSE file.
+Dieses Hardware-Design ist lizenziert unter der CERN Open Hardware Licence Strongly Reciprocal, Version 2.0.
+Den vollständigen Lizenztext finden Sie in der LICENSE-Datei.
