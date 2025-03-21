@@ -6,5 +6,5 @@ Das ist ein Open Source Lasertag Projekt zum selber nachbauen.
 Alle notwendige Dateien und eine Anleitung sind in diesem Projekt gespeichert.
 
 
-Dieses Hardware-Design ist lizenziert unter der CERN Open Hardware Licence Strongly Reciprocal, Version 2.0.
+Dieses Hardware-Design ist lizenziert unter "CERN Open Hardware Licence Strongly Reciprocal, Version 2.0."
 Den vollständigen Lizenztext finden Sie in der LICENSE-Datei.
